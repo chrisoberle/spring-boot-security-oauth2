@@ -1,6 +1,9 @@
 package com.baeldung.config;
 
+import java.io.IOException;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.oauth2.config.annotation.configurers.ClientDetailsServiceConfigurer;
@@ -9,6 +12,7 @@ import org.springframework.security.oauth2.config.annotation.web.configuration.E
 import org.springframework.security.oauth2.config.annotation.web.configurers.AuthorizationServerEndpointsConfigurer;
 import org.springframework.security.oauth2.provider.approval.UserApprovalHandler;
 import org.springframework.security.oauth2.provider.token.TokenStore;
+import org.springframework.security.oauth2.provider.token.store.InMemoryTokenStore;
 
 
 @Configuration
@@ -26,9 +30,6 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
     static final String TRUST = "trust";
     static final int ACCESS_TOKEN_VALIDITY_SECONDS = 1 * 60 * 60;
     static final int REFRESH_TOKEN_VALIDITY_SECONDS = 6 * 60 * 60;
-
-    @Autowired
-    private TokenStore tokenStore;
 
     @Autowired
     private UserApprovalHandler userApprovalHandler;
@@ -50,13 +51,13 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
 
     @Override
     public void configure(AuthorizationServerEndpointsConfigurer endpoints) throws Exception {
-        endpoints.tokenStore(tokenStore)
+        endpoints.tokenStore(tokenStore())
             .userApprovalHandler(userApprovalHandler)
             .authenticationManager(authenticationManager);
     }
 
-//    @Bean
-//    public TokenStore tokenStore() {
-//        return new JwkTokenStore("file:///C:/dev/source/spring-boot-security-oauth2/src/main/resources/keys.json");
-//    }
+    @Bean
+    public TokenStore tokenStore() throws IOException {
+        return new InMemoryTokenStore();
+    }
 }
